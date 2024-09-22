@@ -130,15 +130,15 @@ const initCity = (model) => {
 // ----------------------------------------------
 // Инициализация модели
 const initModel = (modelURL, model) => {
-  if (modelURL === "car.glb") {
+  if (modelURL === "./car.glb") {
     model = initCar(model);
     modelCar = model;
     createCars(modelCar, carData1);
-  } else if (modelURL === "car2.glb") {
+  } else if (modelURL === "./car2.glb") {
     model = initCar(model);
     modelCar2 = model;
     createCars(modelCar2, carData2);
-  } else if (modelURL === "city6.glb") {
+  } else if (modelURL === "./city6.glb") {
     model = initCity(model);
   }
   return model;
@@ -161,7 +161,7 @@ const loadGLTFModel = (modelURL) => {
         child.receiveShadow = true;
       }
     });
-    if (modelURL === "city6.glb") {
+    if (modelURL === "./city6.glb") {
       scene.add(model);
     }
   });
@@ -219,7 +219,7 @@ const addBox = (name, color, position) => {
 const initModels = () => {
 
   // Загрузка и предварительная настройка GLTF-модели
-  const modelURL = ["city6.glb", "car.glb", "car2.glb"];
+  const modelURL = ["./city6.glb", "./car.glb", "./car2.glb"];
   for (let i = 0; i < modelURL.length; i++) {
     loadGLTFModel(modelURL[i]);
   }
