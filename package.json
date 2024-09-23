@@ -8,7 +8,7 @@
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
     "build": "vite build",
-    "preview": "vite preview",
+    "preview": "vite preview"
   },
   "devDependencies": {
     "gh-pages": "^6.1.1",

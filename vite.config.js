@@ -1,5 +1,5 @@
 export default {
-  base: '/city-threejs-project/',
+  base: '/city-threejs-project',
   esbuild: {
     // Enable support for importing ES modules
     // and specify the entry point for the build
