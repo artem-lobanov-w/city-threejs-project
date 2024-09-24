@@ -25,7 +25,7 @@ let scene,
   canvas,
   modelCar,
   modelCar2,
-  
+  time = 0,
   isDesktop = true,
   pointer = new Vector2(),
   raycaster = new Raycaster(),
@@ -130,15 +130,15 @@ const initCity = (model) => {
 // ----------------------------------------------
 // Инициализация модели
 const initModel = (modelURL, model) => {
-  if (modelURL === "./car.glb") {
+  if (modelURL === "car.glb") {
     model = initCar(model);
     modelCar = model;
     createCars(modelCar, carData1);
-  } else if (modelURL === "./car2.glb") {
+  } else if (modelURL === "car2.glb") {
     model = initCar(model);
     modelCar2 = model;
     createCars(modelCar2, carData2);
-  } else if (modelURL === "./city6.glb") {
+  } else if (modelURL === "city6.glb") {
     model = initCity(model);
   }
   return model;
@@ -161,7 +161,7 @@ const loadGLTFModel = (modelURL) => {
         child.receiveShadow = true;
       }
     });
-    if (modelURL === "./city6.glb") {
+    if (modelURL === "city6.glb") {
       scene.add(model);
     }
   });
@@ -219,7 +219,7 @@ const addBox = (name, color, position) => {
 const initModels = () => {
 
   // Загрузка и предварительная настройка GLTF-модели
-  const modelURL = ["./city6.glb", "./car.glb", "./car2.glb"];
+  const modelURL = ["city6.glb", "car.glb", "car2.glb"];
   for (let i = 0; i < modelURL.length; i++) {
     loadGLTFModel(modelURL[i]);
   }
@@ -234,10 +234,11 @@ const initModels = () => {
 // ----------------------------------------------
 // Класс авто
 class Car {
-  constructor(model, startPosition, direction, distance) {
+  constructor(model, startPosition, direction, distance, offset) {
     this.model = model.clone();
     this.startPosition = startPosition.clone();
     this.currentPosition = startPosition.clone();
+    this.offset = offset;
     this.direction = direction.normalize();
     this.model.rotation.y = Math.atan2(this.direction.x, this.direction.z);
     this.distance = distance;
@@ -255,7 +256,6 @@ class Car {
       this.currentPosition.addScaledVector(this.direction, this.speed);
       this.traveledPath += this.speed;
     }
-
     this.model.position.copy(this.currentPosition);
   }
 }
@@ -265,27 +265,27 @@ let cars = [];
 // ----------------------------------------------
 // Параметры для машин в зависимости от типа
 const carData1 = [
-  [new Vector3(3.55, 0, 15), new Vector3(0, 0, -1), 30],
-  [new Vector3(-1.85, 0, 25), new Vector3(0, 0, -1), 50],
-  [new Vector3(32, 0, 2.05), new Vector3(-1, 0, 0), 16],
-  [new Vector3(20, 0, -2), new Vector3(-1, 0, 0), 40],
-  [new Vector3(20, 0, 6.1), new Vector3(-1, 0, 0), 40],
+  [new Vector3(3.55, 0, 15), new Vector3(0, 0, -1), 30, 2],
+  [new Vector3(-1.85, 0, 25), new Vector3(0, 0, -1), 50, 2],
+  [new Vector3(32, 0, 2.05), new Vector3(-1, 0, 0), 16, 2],
+  [new Vector3(20, 0, -2), new Vector3(-1, 0, 0), 40, 2],
+  [new Vector3(20, 0, 6.1), new Vector3(-1, 0, 0), 40, 2],
 ];
 
 const carData2 = [
-  [new Vector3(3.2, 0, -10), new Vector3(0, 0, 1), 20],
-  [new Vector3(-2.2, 0, -11), new Vector3(0, 0, 1), 22],
-  [new Vector3(-10, 0, 2.4), new Vector3(1, 0, 0), 20],
-  [new Vector3(-17.5, 0, -1.65), new Vector3(1, 0, 0), 35],
-  [new Vector3(-17.5, 0, 6.45), new Vector3(1, 0, 0), 35],
+  [new Vector3(3.2, 0, -10), new Vector3(0, 0, 1), 20, 2],
+  [new Vector3(-2.2, 0, -11), new Vector3(0, 0, 1), 22, 2],
+  [new Vector3(-10, 0, 2.4), new Vector3(1, 0, 0), 20, 2],
+  [new Vector3(-17.5, 0, -1.65), new Vector3(1, 0, 0), 35, 2],
+  [new Vector3(-17.5, 0, 6.45), new Vector3(1, 0, 0), 35, 2],
 ];
 
 // ----------------------------------------------
 // Добавление машин
 const createCars = (modelCar, carData) => {
   const carsToAdd = carData.map(
-    ([position, direction, speed]) =>
-      new Car(modelCar, position, direction, speed)
+    ([position, direction, speed, offset]) =>
+      new Car(modelCar, position, direction, speed, offset)
   );
   cars.push(...carsToAdd);
 };
@@ -345,6 +345,7 @@ document.addEventListener("mouseup", () => {
 // ----------------------------------------------
 // Анимация
 const animate = () => {
+  time += 0.01;
   TWEEN.update();
   updateCars();
   controls.update();
@@ -352,8 +353,10 @@ const animate = () => {
   camera.lookAt(camera.position.x - 5, 0, camera.position.z - 5);
 
   const canvas = renderer.domElement;
+  
   responsiveDesign(canvas);
   if (resizeRendererToDisplaySize(renderer)) {
+    
     const canvas = renderer.domElement;
     camera.aspect = canvas.clientWidth / canvas.clientHeight;
     camera.updateProjectionMatrix();
@@ -374,7 +377,7 @@ const resizeRendererToDisplaySize = (renderer) => {
   const windowWidth = canvas.clientWidth;
   const windowHeight = canvas.clientHeight;
   const needResize =
-    canvas.width !== windowWidth || canvas.height !== windowHeight;
+  canvas.width !== windowWidth || canvas.height !== windowHeight;
   return needResize;
 };
 
@@ -382,11 +385,10 @@ const resizeRendererToDisplaySize = (renderer) => {
 // Адаптация
 const responsiveDesign = (canvas) => {
   canvas = renderer.domElement;
+  canvas.style.height = canvas.height + "px";
   if (window.innerWidth < 1000) {
-    canvas.style.height = canvas.height + "px";
     isDesktop = false;
   } else {
-    canvas.style.height = canvas.height + "px";
     isDesktop = true;
   }
 };
